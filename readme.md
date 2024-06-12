@@ -24,11 +24,7 @@ Note: Please read the entire assessment before you start designing your solution
 
 - GET `/jobs`: Retrieves all the active (none-expired) jobs with pagination
 
-- DELETE `/jobs/:id`: soft deletes a job by expiring it early but keeps it in the `indeed.xml` result with the new expiry date.
-
-- GET `/jobs/indeed.xml` Retrieves all the active jobs without pagination in XML format that aligns with [Indeed XML Feed reference](https://docs.indeed.com/indeed-apply/xml-feed)  you can ignore the `<url>` field or leave it blank. bear in mind that Indeed will theoretically consume this xml endpoint, so ensure to show expired jobs for up to 48 hours after expiry in case a job was expired early later with the `DELETE` endpoint. 
-
-- PUT `/jobs/:id/indeed`: Adds the job to the `indeed.xml` endpoint
+- GET `/jobs/indeed.xml` Retrieves all the active jobs without pagination in XML format that aligns with [Indeed XML Feed reference](https://docs.indeed.com/indeed-apply/xml-feed) you can ignore the `<url>` field or leave it blank. 
 
 Ensure that the data exchange format is JSON except for the endpoint `/jobs/indeed.xml`
 
