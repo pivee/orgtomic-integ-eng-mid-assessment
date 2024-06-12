@@ -39,7 +39,7 @@ Implement error handling for common API issues (e.g. not found, forbidden, netwo
 For your JSON endpoint ensure the response follows the following interface
 
 ```ts
-Interface API_RESPONSE  {
+interface API_RESPONSE  {
   result: any
   meta: any
   errors: Array<{
