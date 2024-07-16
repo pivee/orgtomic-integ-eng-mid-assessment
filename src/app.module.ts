@@ -9,6 +9,7 @@ import { KnownErrorInterceptor } from './error-handling/known-error.interceptor'
 import { RequestIdMiddleware } from './middleware/request-id.middleware';
 import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
 import { JobsModule } from './modules/routes/jobs/jobs.module';
+import { PrismaModule } from '@modules/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -21,14 +22,13 @@ import { JobsModule } from './modules/routes/jobs/jobs.module';
         PORT: Joi.number().port().default(3000),
         CORS_ORIGINS: Joi.string().default('*'),
         DATABASE_URL: Joi.string(),
-        JWT_ACCESS_TOKEN_SECRET: Joi.string(),
-        JWT_ACCESS_TOKEN_TTL: Joi.string().default('300s'),
       }),
       validationOptions: {
         allowUnknown: true,
         abortEarly: true,
       },
     }),
+    PrismaModule,
     JobsModule,
   ],
   controllers: [AppController],
