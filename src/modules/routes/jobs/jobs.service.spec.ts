@@ -4,6 +4,7 @@ import { JobsService } from './jobs.service';
 
 describe('JobsService', () => {
   let service: JobsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let prisma: PrismaService;
 
   beforeEach(async () => {
@@ -16,7 +17,7 @@ describe('JobsService', () => {
             job: {
               create: jest.fn(),
               findMany: jest.fn(),
-              findUnique: jest.fn(),
+              findFirstOrThrow: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
             },

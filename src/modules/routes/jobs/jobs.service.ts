@@ -1,5 +1,6 @@
 import { PrismaService } from '@modules/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 
@@ -8,26 +9,39 @@ export class JobsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createJobDto: CreateJobDto) {
-    const result = this.prisma.job.create({
-      data: createJobDto.validate(),
+    if (!createJobDto.expirationDate) {
+      createJobDto.expirationDate = dayjs().add(30, 'days').toDate();
+    }
+
+    const result = await this.prisma.job.create({
+      data: createJobDto,
     });
 
     return result;
   }
 
-  findAll() {
-    return `This action returns all jobs`;
+  async findAll() {
+    const result = await this.prisma.job.findMany();
+
+    return result;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} job`;
+  async findOne(id: number) {
+    const result = await this.prisma.job.findFirstOrThrow({ where: { id } });
+
+    return result;
   }
 
-  update(id: number, updateJobDto: UpdateJobDto) {
-    return `This action updates a #${id} job`;
+  async update(id: number, updateJobDto: UpdateJobDto) {
+    const result = await this.prisma.job.update({
+      data: updateJobDto,
+      where: { id },
+    });
+
+    return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} job`;
+  async remove(id: number) {
+    return await this.prisma.job.delete({ where: { id } });
   }
 }

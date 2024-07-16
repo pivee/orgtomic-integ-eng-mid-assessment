@@ -5,6 +5,8 @@ import { JobsService } from './jobs.service';
 
 describe('JobsController', () => {
   let controller: JobsController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,7 +19,7 @@ describe('JobsController', () => {
             job: {
               create: jest.fn(),
               findMany: jest.fn(),
-              findUnique: jest.fn(),
+              findFirstOrThrow: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
             },
@@ -27,6 +29,7 @@ describe('JobsController', () => {
     }).compile();
 
     controller = module.get<JobsController>(JobsController);
+    prisma = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {

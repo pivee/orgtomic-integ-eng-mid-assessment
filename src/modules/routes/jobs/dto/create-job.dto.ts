@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JobType, RemoteType } from '@prisma/client';
-import * as dayjs from 'dayjs';
 import { JobEntity } from '../entities/job.entity';
 
 export class CreateJobDto implements Partial<JobEntity> {
@@ -72,11 +71,4 @@ export class CreateJobDto implements Partial<JobEntity> {
 
   @ApiProperty({ enum: RemoteType })
   remoteType: RemoteType;
-
-  validate() {
-    if (!this.expirationDate) {
-      this.expirationDate = dayjs().add(30, 'days').toDate();
-    }
-    return this;
-  }
 }
