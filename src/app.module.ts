@@ -8,6 +8,7 @@ import { HttpExceptionFilter } from './error-handling/http-exception.filter';
 import { KnownErrorInterceptor } from './error-handling/known-error.interceptor';
 import { RequestIdMiddleware } from './middleware/request-id.middleware';
 import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
+import { JobsModule } from './modules/routes/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RequestLoggerMiddleware } from './middleware/request-logger.middleware'
         abortEarly: true,
       },
     }),
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [
