@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id               Int         @id @default(autoincrement())
+  title            String
+  referenceNumber  Int         @unique
+  requisitionId    String
+  apiJobId         String?
+  url              String
+  trackingUrl      String
+  company          String
+  sourceName       String
+  city             String
+  state            String
+  country          String
+  postalCode       String
+  streetAddress    String
+  email            String
+  description      String
+  salary           String
+  education        String
+  jobType          JobType
+  category         String?
+  experience       String
+  publishedDate    DateTime
+  expirationDate   DateTime
+  remoteType       RemoteType
+  lastActivityDate DateTime    @updatedAt
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  JobAdverts       JobAdvert[]
+}
+
+model JobAdvert {
+  id               Int              @id @default(autoincrement())
+  jobId            Int
+  url              String
+  trackingUrl      String
+  salary           String
+  publishedDate    DateTime
+  expirationDate   DateTime
+  email            String
+  status           JobAdvertStatus  @default(Draft)
+  lastActivityDate DateTime         @updatedAt
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  Job              Job              @relation(fields: [jobId], references: [id])
+  JobApplications  JobApplication[]
+}
+
+model JobApplication {
+  id               Int                  @id @default(autoincrement())
+  jobAdvertId      Int
+  applicantName    String
+  applicantEmail   String
+  resume           String
+  appliedAt        DateTime             @default(now())
+  status           JobApplicationStatus @default(Applied)
+  lastActivityDate DateTime             @updatedAt
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  JobAdvert        JobAdvert            @relation(fields: [jobAdvertId], references: [id])
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+}
+
+enum RemoteType {
+  FULLY_REMOTE
+  HYBRID_REMOTE
+  COVID_19
+}
+
+enum JobAdvertStatus {
+  Draft
+  Published
+  Closed
+  Paused
+  Expired
+  Archived
+}
+
+enum JobApplicationStatus {
+  Applied
+  CandidateReview
+  InterviewScheduled
+  InterviewCompleted
+  OfferExtended
+  OfferAccepted
+  OfferDeclined
+  Hired
+  Rejected
+  Withdrawn
+  BackgroundCheck
+  OnHold
+  Assessment
+  SecondInterviewScheduled
+  SecondInterviewCompleted
+  ReferenceCheck
+  DeclinedOffer
+}
