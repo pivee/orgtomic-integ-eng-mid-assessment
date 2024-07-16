@@ -12,7 +12,7 @@ export class CreateJobDto implements Partial<JobEntity> {
   @ApiProperty()
   requisitionId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   apiJobId?: string;
 
   @ApiProperty()
@@ -54,10 +54,10 @@ export class CreateJobDto implements Partial<JobEntity> {
   @ApiProperty()
   education: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: JobType })
   jobType: JobType;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   category?: string;
 
   @ApiProperty()
@@ -69,6 +69,6 @@ export class CreateJobDto implements Partial<JobEntity> {
   @ApiProperty()
   expirationDate: Date;
 
-  @ApiProperty()
+  @ApiProperty({ enum: RemoteType })
   remoteType: RemoteType;
 }

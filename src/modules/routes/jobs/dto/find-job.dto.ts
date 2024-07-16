@@ -1,11 +1,11 @@
 import { DataResponse } from '@core/data-response/data-response';
+import { Metadata } from '@core/metadata/metadata';
 import { ApiProperty } from '@nestjs/swagger';
 import { JobEntity } from '../entities/job.entity';
-import { Metadata } from '@core/metadata/metadata';
 
-export class FindAllJobsDto extends DataResponse<JobEntity[]> {
-  @ApiProperty({ type: JobEntity, isArray: true })
-  public result: JobEntity[];
+export class FindJobDto extends DataResponse<JobEntity> {
+  @ApiProperty({ type: JobEntity })
+  public result: JobEntity;
 
   @ApiProperty({ type: Metadata })
   public meta: any;
