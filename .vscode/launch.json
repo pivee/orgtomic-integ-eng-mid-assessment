@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "Launch for debugging",
+      "request": "launch",
+      "runtimeArgs": ["start:dev"],
+      "runtimeExecutable": "pnpm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "console": "integratedTerminal"
+    }
+  ]
+}
