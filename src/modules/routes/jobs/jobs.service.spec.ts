@@ -1,129 +1,229 @@
+import { PaginationOptions } from '@core/pagination-options/pagination-options';
 import { PrismaService } from '@modules/prisma/prisma.service';
-import { PrismaServiceMock } from '@modules/prisma/prisma.service.mock';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Job, JobType, Prisma, RemoteType } from '@prisma/client';
+import * as dayjs from 'dayjs';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobsService } from './jobs.service';
 
 describe('JobsService', () => {
-  let jobsService: JobsService;
-  let prismaServiceMock: PrismaServiceMock;
+  let service: JobsService;
+  let prismaService: PrismaService;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
         JobsService,
-        { provide: PrismaService, useClass: PrismaServiceMock },
+        {
+          provide: PrismaService,
+          useValue: {
+            job: {
+              create: jest.fn(),
+              findMany: jest.fn(),
+              findFirstOrThrow: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
+              count: jest.fn(),
+            },
+          },
+        },
       ],
     }).compile();
 
-    jobsService = moduleRef.get<JobsService>(JobsService);
-    prismaServiceMock = moduleRef.get<PrismaService>(PrismaService) as any;
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    service = module.get<JobsService>(JobsService);
+    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   describe('create', () => {
-    it('should create a job', async () => {
-      const createJobDto: Partial<CreateJobDto> = {
+    it('should create a job with a default expiration date if none is provided', async () => {
+      const createJobDto: CreateJobDto = {
         title: 'Test Job',
-        description: 'This is a test job',
-        expirationDate: new Date(),
+        referenceNumber: 12345,
+        requisitionId: 'REQ123',
+        apiJobId: 'API123',
+        url: 'https://example.com',
+        trackingUrl: 'https://example.com/track',
+        company: 'Test Company',
+        sourceName: 'Test Source',
+        city: 'Test City',
+        state: 'Test State',
+        country: 'Test Country',
+        postalCode: '12345',
+        streetAddress: '123 Test St',
+        email: 'test@example.com',
+        description: 'Test Description',
+        salary: '100k',
+        education: "Bachelor's Degree",
+        jobType: JobType.FULL_TIME,
+        category: 'Engineering',
+        experience: '2 years',
+        publishedDate: new Date(),
+        expirationDate: undefined,
+        remoteType: RemoteType.FULLY_REMOTE,
       };
+      const expectedExpirationDate = dayjs().add(30, 'days').toDate();
+      const job = { ...createJobDto, expirationDate: expectedExpirationDate };
 
-      const expectedResult = { id: 1, ...createJobDto };
-      prismaServiceMock.job.create.mockResolvedValue(expectedResult);
+      jest.spyOn(prismaService.job, 'create').mockResolvedValue(job as Job);
 
-      const result = await jobsService.create(createJobDto as CreateJobDto);
+      const result = await service.create(createJobDto);
 
-      expect(result).toEqual(expectedResult);
-      expect(prismaServiceMock.job.create).toHaveBeenCalledWith({
-        data: createJobDto,
+      expect(prismaService.job.create).toHaveBeenCalledWith({
+        data: { ...createJobDto, expirationDate: expectedExpirationDate },
       });
+      expect(result).toEqual(job);
     });
 
-    it('should set default expiration date if not provided', async () => {
-      const createJobDto: Partial<CreateJobDto> = {
+    it('should create a job with the provided expiration date', async () => {
+      const createJobDto: CreateJobDto = {
         title: 'Test Job',
-        description: 'This is a test job',
+        referenceNumber: 12345,
+        requisitionId: 'REQ123',
+        apiJobId: 'API123',
+        url: 'https://example.com',
+        trackingUrl: 'https://example.com/track',
+        company: 'Test Company',
+        sourceName: 'Test Source',
+        city: 'Test City',
+        state: 'Test State',
+        country: 'Test Country',
+        postalCode: '12345',
+        streetAddress: '123 Test St',
+        email: 'test@example.com',
+        description: 'Test Description',
+        salary: '100k',
+        education: "Bachelor's Degree",
+        jobType: JobType.FULL_TIME,
+        category: 'Engineering',
+        experience: '2 years',
+        publishedDate: new Date(),
+        expirationDate: new Date(),
+        remoteType: RemoteType.FULLY_REMOTE,
       };
+      const job = { ...createJobDto };
 
-      const expectedResult = { id: 1, ...createJobDto };
-      prismaServiceMock.job.create.mockResolvedValue(expectedResult);
+      jest.spyOn(prismaService.job, 'create').mockResolvedValue(job as Job);
 
-      const result = await jobsService.create(createJobDto as CreateJobDto);
+      const result = await service.create(createJobDto);
 
-      expect(result).toEqual(expectedResult);
-      expect(prismaServiceMock.job.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          ...createJobDto,
-          expirationDate: expect.any(Date),
+      expect(prismaService.job.create).toHaveBeenCalledWith({
+        data: createJobDto,
+      });
+      expect(result).toEqual(job);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should find all jobs with pagination and metadata', async () => {
+      const where: Prisma.JobWhereInput = { title: { contains: 'Test' } };
+      const options: PaginationOptions = new PaginationOptions(10, 0);
+      const jobs = [
+        {
+          id: 1,
+          title: 'Test Job',
+          description: 'Test Description',
+          expirationDate: dayjs().add(30, 'days').format('YYYY-MM-DD'),
+        },
+      ];
+      const totalCount = 1;
+
+      jest.spyOn(prismaService.job, 'count').mockResolvedValue(totalCount);
+      jest
+        .spyOn(prismaService.job, 'findMany')
+        .mockResolvedValue(jobs as unknown as Job[]);
+
+      const result = await service.findAll(where, options);
+
+      expect(prismaService.job.count).toHaveBeenCalledWith({
+        where: {
+          ...where,
+          expirationDate: { gt: dayjs().format('YYYY-MM-DD') },
+        },
+      });
+      expect(prismaService.job.findMany).toHaveBeenCalledWith({
+        where: {
+          ...where,
+          expirationDate: { gt: dayjs().format('YYYY-MM-DD') },
+        },
+        take: options.take,
+        skip: options.skip,
+      });
+
+      expect(result).toEqual({
+        result: jobs,
+        metadata: expect.objectContaining({
+          totalCount,
+          take: options.take,
+          skip: options.skip,
+          pageCount: 1,
+          currentPage: 1,
         }),
       });
     });
   });
 
-  describe('findAll', () => {
-    it('should find all jobs', async () => {
-      const expectedResult = [{ id: 1, title: 'Test Job' }];
-      prismaServiceMock.job.findMany.mockResolvedValue(expectedResult);
-
-      const result = await jobsService.findAll();
-
-      expect(result).toEqual(expectedResult);
-      expect(prismaServiceMock.job.findMany).toHaveBeenCalled();
-    });
-  });
-
   describe('findOne', () => {
-    it('should find one job by id', async () => {
-      const jobId = 1;
-      const expectedResult = { id: jobId, title: 'Test Job' };
-      prismaServiceMock.job.findFirstOrThrow.mockResolvedValue(expectedResult);
+    it('should find a job by id', async () => {
+      const job = {
+        id: 1,
+        title: 'Test Job',
+        description: 'Test Description',
+        expirationDate: new Date(),
+      };
 
-      const result = await jobsService.findOne(jobId);
+      jest
+        .spyOn(prismaService.job, 'findFirstOrThrow')
+        .mockResolvedValue(job as Job);
 
-      expect(result).toEqual(expectedResult);
-      expect(prismaServiceMock.job.findFirstOrThrow).toHaveBeenCalledWith({
-        where: { id: jobId },
+      const result = await service.findOne(1);
+
+      expect(prismaService.job.findFirstOrThrow).toHaveBeenCalledWith({
+        where: { id: 1 },
       });
+      expect(result).toEqual(job);
     });
   });
 
   describe('update', () => {
-    it('should update a job', async () => {
-      const jobId = 1;
-      const updateJobDto: UpdateJobDto = {
-        title: 'Updated Test Job',
+    it('should update a job by id', async () => {
+      const updateJobDto: UpdateJobDto = { title: 'Updated Job' };
+      const job = {
+        id: 1,
+        ...updateJobDto,
+        description: 'Test Description',
+        expirationDate: new Date(),
       };
 
-      const expectedResult = { id: jobId, ...updateJobDto };
-      prismaServiceMock.job.update.mockResolvedValue(expectedResult);
+      jest.spyOn(prismaService.job, 'update').mockResolvedValue(job as Job);
 
-      const result = await jobsService.update(jobId, updateJobDto);
+      const result = await service.update(1, updateJobDto);
 
-      expect(result).toEqual(expectedResult);
-      expect(prismaServiceMock.job.update).toHaveBeenCalledWith({
+      expect(prismaService.job.update).toHaveBeenCalledWith({
         data: updateJobDto,
-        where: { id: jobId },
+        where: { id: 1 },
       });
+      expect(result).toEqual(job);
     });
   });
 
   describe('remove', () => {
     it('should remove a job by id', async () => {
-      const jobId = 1;
-      const deleteResult = { count: 1 };
-      prismaServiceMock.job.delete.mockResolvedValue(deleteResult);
+      const job = {
+        id: 1,
+        title: 'Test Job',
+        description: 'Test Description',
+        expirationDate: new Date(),
+      };
 
-      const result = await jobsService.remove(jobId);
+      jest.spyOn(prismaService.job, 'delete').mockResolvedValue(job as Job);
 
-      expect(result).toEqual(deleteResult);
-      expect(prismaServiceMock.job.delete).toHaveBeenCalledWith({
-        where: { id: jobId },
+      const result = await service.remove(1);
+
+      expect(prismaService.job.delete).toHaveBeenCalledWith({
+        where: { id: 1 },
       });
+      expect(result).toEqual(job);
     });
   });
 });

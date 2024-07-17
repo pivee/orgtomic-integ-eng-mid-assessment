@@ -24,7 +24,7 @@ export class JobsService {
   }
 
   async findAll(where: Prisma.JobWhereInput, options: PaginationOptions) {
-    where = { ...where, expirationDate: { gt: new Date() } };
+    where = { ...where, expirationDate: { gt: dayjs().format('YYYY-MM-DD') } };
 
     const totalCount = await this.prisma.job.count({
       where,
