@@ -64,10 +64,10 @@ export class CreateJobDto implements Partial<JobEntity> {
   experience: string;
 
   @ApiProperty()
-  publishedDate: Date;
+  publishedDate: Date | string;
 
   @ApiProperty()
-  expirationDate: Date;
+  expirationDate: Date | string;
 
   @ApiProperty({ enum: RemoteType })
   remoteType: RemoteType;

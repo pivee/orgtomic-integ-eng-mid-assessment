@@ -13,7 +13,9 @@ export class JobsService {
 
   async create(createJobDto: CreateJobDto) {
     if (!createJobDto.expirationDate) {
-      createJobDto.expirationDate = dayjs().add(30, 'days').toDate();
+      createJobDto.expirationDate = dayjs()
+        .add(30, 'days')
+        .format('YYYY-MM-DD');
     }
 
     const result = await this.prisma.job.create({

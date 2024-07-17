@@ -66,10 +66,10 @@ export class JobEntity implements Prisma.JobCreateWithoutJobAdvertsInput {
   experience: string;
 
   @ApiProperty()
-  publishedDate: Date;
+  publishedDate: Date | string;
 
   @ApiProperty()
-  expirationDate: Date;
+  expirationDate: Date | string;
 
   @ApiProperty()
   remoteType: RemoteType;

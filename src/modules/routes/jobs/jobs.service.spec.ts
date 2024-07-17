@@ -58,14 +58,18 @@ describe('JobsService', () => {
         jobType: JobType.FULL_TIME,
         category: 'Engineering',
         experience: '2 years',
-        publishedDate: new Date(),
+        publishedDate: dayjs().format('YYYY-MM-DD'),
         expirationDate: undefined,
         remoteType: RemoteType.FULLY_REMOTE,
       };
-      const expectedExpirationDate = dayjs().add(30, 'days').toDate();
+      const expectedExpirationDate = dayjs()
+        .add(30, 'days')
+        .format('YYYY-MM-DD');
       const job = { ...createJobDto, expirationDate: expectedExpirationDate };
 
-      jest.spyOn(prismaService.job, 'create').mockResolvedValue(job as Job);
+      jest
+        .spyOn(prismaService.job, 'create')
+        .mockResolvedValue(job as unknown as Job);
 
       const result = await service.create(createJobDto);
 
@@ -97,8 +101,8 @@ describe('JobsService', () => {
         jobType: JobType.FULL_TIME,
         category: 'Engineering',
         experience: '2 years',
-        publishedDate: new Date(),
-        expirationDate: new Date(),
+        publishedDate: dayjs().format('YYYY-MM-DD'),
+        expirationDate: dayjs().format('YYYY-MM-DD'),
         remoteType: RemoteType.FULLY_REMOTE,
       };
       const job = { ...createJobDto };
@@ -169,12 +173,12 @@ describe('JobsService', () => {
         id: 1,
         title: 'Test Job',
         description: 'Test Description',
-        expirationDate: new Date(),
+        expirationDate: dayjs().format('YYYY-MM-DD'),
       };
 
       jest
         .spyOn(prismaService.job, 'findFirstOrThrow')
-        .mockResolvedValue(job as Job);
+        .mockResolvedValue(job as unknown as Job);
 
       const result = await service.findOne(1);
 
@@ -192,10 +196,12 @@ describe('JobsService', () => {
         id: 1,
         ...updateJobDto,
         description: 'Test Description',
-        expirationDate: new Date(),
+        expirationDate: dayjs().format('YYYY-MM-DD'),
       };
 
-      jest.spyOn(prismaService.job, 'update').mockResolvedValue(job as Job);
+      jest
+        .spyOn(prismaService.job, 'update')
+        .mockResolvedValue(job as unknown as Job);
 
       const result = await service.update(1, updateJobDto);
 
@@ -213,10 +219,12 @@ describe('JobsService', () => {
         id: 1,
         title: 'Test Job',
         description: 'Test Description',
-        expirationDate: new Date(),
+        expirationDate: dayjs().format('YYYY-MM-DD'),
       };
 
-      jest.spyOn(prismaService.job, 'delete').mockResolvedValue(job as Job);
+      jest
+        .spyOn(prismaService.job, 'delete')
+        .mockResolvedValue(job as unknown as Job);
 
       const result = await service.remove(1);
 

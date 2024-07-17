@@ -20,7 +20,7 @@ describe('AppController', () => {
       expect(appController.getHello()).toBeInstanceOf(DataResponse);
       expect(appController.getHello()).toEqual(
         expect.objectContaining({
-          data: expect.any(String),
+          result: expect.any(String),
         }),
       );
     });
