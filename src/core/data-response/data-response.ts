@@ -8,8 +8,8 @@ export class DataResponse<T> {
   @ApiProperty({ required: false })
   public meta;
 
-  constructor(data: T) {
+  constructor(data: T, options: Partial<Omit<Metadata<T>, 'data'>> = {}) {
     this.result = data;
-    this.meta = new Metadata(data);
+    this.meta = new Metadata(data, options);
   }
 }

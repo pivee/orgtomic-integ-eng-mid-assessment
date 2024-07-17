@@ -1,15 +1,20 @@
+import { DataResponse } from '@core/data-response/data-response';
+import { PaginationOptions } from '@core/pagination-options/pagination-options';
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateJobDto } from './dto/create-job.dto';
 import { FindAllJobsDto } from './dto/find-all-jobs.dto';
 import { FindJobDto } from './dto/find-job.dto';
@@ -29,8 +34,38 @@ export class JobsController {
 
   @Get()
   @ApiOkResponse({ type: FindAllJobsDto })
-  findAll() {
-    return this.jobsService.findAll();
+  @ApiQuery({
+    name: 'take',
+    type: 'number',
+    required: false,
+    description: 'Default = 10',
+  })
+  @ApiQuery({
+    name: 'skip',
+    type: 'number',
+    required: false,
+    description: 'Default = 0',
+  })
+  async findAll(
+    @Query(
+      'take',
+      new DefaultValuePipe(new PaginationOptions().take),
+      ParseIntPipe,
+    )
+    take: number,
+    @Query(
+      'skip',
+      new DefaultValuePipe(new PaginationOptions().skip),
+      ParseIntPipe,
+    )
+    skip: number,
+  ) {
+    const { result, metadata } = await this.jobsService.findAll(undefined, {
+      take,
+      skip,
+    });
+
+    return new DataResponse(result, metadata);
   }
 
   @Get(':id')

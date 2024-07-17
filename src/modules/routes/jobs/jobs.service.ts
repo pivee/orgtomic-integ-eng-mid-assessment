@@ -3,6 +3,9 @@ import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { Prisma } from '@prisma/client';
+import { PaginationOptions } from '@core/pagination-options/pagination-options';
+import { Metadata } from '@core/metadata/metadata';
 
 @Injectable()
 export class JobsService {
@@ -20,10 +23,22 @@ export class JobsService {
     return result;
   }
 
-  async findAll() {
-    const result = await this.prisma.job.findMany();
+  async findAll(where: Prisma.JobWhereInput, options: PaginationOptions) {
+    where = { ...where, expirationDate: { gt: new Date() } };
 
-    return result;
+    const totalCount = await this.prisma.job.count({
+      where,
+    });
+
+    const result = await this.prisma.job.findMany({
+      where,
+      take: options.take,
+      skip: options.skip,
+    });
+
+    const metadata = new Metadata(result, { ...options, totalCount });
+
+    return { result, metadata };
   }
 
   async findOne(id: number) {
