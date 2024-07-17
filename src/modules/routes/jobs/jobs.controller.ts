@@ -13,13 +13,16 @@ import {
   Patch,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { IndeedXmlInterceptor } from 'src/middleware/indeed-xml.interceptor';
 import { CreateJobDto } from './dto/create-job.dto';
 import { FindAllJobsDto } from './dto/find-all-jobs.dto';
 import { FindJobDto } from './dto/find-job.dto';
@@ -78,6 +81,15 @@ export class JobsController {
     });
 
     return new DataResponse(result, metadata);
+  }
+
+  @Get('/indeed.xml')
+  @UseInterceptors(IndeedXmlInterceptor)
+  @ApiProduces('application/xml')
+  @ApiOkResponse({ type: FindJobDto })
+  async findAllForIndeed() {
+    const jobs = await this.jobsService.findAllWithoutPagination({});
+    return jobs;
   }
 
   @Get(':id')
