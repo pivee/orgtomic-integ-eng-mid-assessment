@@ -14,7 +14,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateJobDto } from './dto/create-job.dto';
 import { FindAllJobsDto } from './dto/find-all-jobs.dto';
 import { FindJobDto } from './dto/find-job.dto';
@@ -27,12 +32,19 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Post()
+  @ApiOperation({
+    summary:
+      'Create a new job posting with an expiration date set by default for 30 days.',
+  })
   @ApiOkResponse({ type: FindJobDto })
   create(@Body() createJobDto: CreateJobDto) {
     return this.jobsService.create(createJobDto);
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Retrieve all active (non-expired) jobs with pagination',
+  })
   @ApiOkResponse({ type: FindAllJobsDto })
   @ApiQuery({
     name: 'take',
